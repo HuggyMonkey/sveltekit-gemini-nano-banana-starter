@@ -67,27 +67,6 @@
         </h1>
       </div>
       
-      <!-- Right side: Search + Help -->
-      <div class="flex items-center space-x-3">
-        <form class="flex items-center" role="search" aria-label="Global search">
-          <label for="studio-search" class="sr-only">Search</label>
-          <input 
-            id="studio-search" 
-            name="q" 
-            type="search" 
-            placeholder="🔍 Search" 
-            class="px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-300 transition-all duration-200 text-sm" 
-          />
-        </form>
-        <button class=" p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer" aria-label="Help and settings">
-          <!-- Lucide "Help Circle" icon -->
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 1 1 5.83 1c0 2-3 3-3 3"/>
-            <line x1="12" y1="17" x2="12" y2="17"/>
-          </svg>
-        </button>
-      </div>
     </div>
   </header>
 
@@ -116,12 +95,12 @@
       <!-- Profile Section -->
       <section class=" border-t border-gray-200 p-4" aria-label="Profile">
         <button type="button" class="profile__summary flex items-center w-full hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 cursor-pointer" onclick={toggleProfileMenu}>
-          <div class=" w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm mr-3">U</div>
-          <span class=" text-gray-700 font-medium text-sm flex-1 {sidebarCollapsed ? 'hidden' : ''}">username@email</span>
-          <svg class=" w-4 h-4 text-gray-500 transition-transform duration-200 {sidebarCollapsed ? 'hidden' : ''}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M6 9l6 6 6-6"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="2.0em" height="2.0em" viewBox="0 0 24 24">
+            <path fill="currentColor" d="m7 10l5 5l5-5z" />
           </svg>
+          <span class=" text-gray-700 font-medium text-sm flex-1 overflow-hidden text-ellipsis whitespace-nowrap {sidebarCollapsed ? 'hidden' : ''}">huggy.monkey00@gmail.com</span>
         </button>
+
         
         <!-- Profile Menu -->
         <nav class=" mt-2 bg-white rounded-lg shadow-md border border-gray-200 p-2 {sidebarCollapsed ? 'hidden' : ''}" aria-label="Profile menu" class:block={profileMenuOpen} class:hidden={!profileMenuOpen}>

@@ -15,8 +15,10 @@ async function generateImage() {
  
   errorMessage = "";
 
+  const cleanPrompt = typeof prompt === "string" ? prompt.trim() : "";
+
   // Validate prompt
-  if (typeof prompt !== "string" || prompt.trim() === "") {
+  if (!cleanPrompt) {
     errorMessage = "Please enter a prompt.";
     return;
   }
@@ -27,7 +29,7 @@ async function generateImage() {
     const response = await fetch("/api/image/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt.trim() })
+      body: JSON.stringify({ prompt: cleanPrompt })
     });
 
     if (!response.ok) {

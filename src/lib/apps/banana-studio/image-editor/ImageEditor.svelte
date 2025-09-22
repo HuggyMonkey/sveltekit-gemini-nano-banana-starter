@@ -22,6 +22,8 @@
 
   let generatedImageHistoryFiles: ImageFile[] = $state([]);
 
+  const generatedImageHistoryLimit = 10;
+
 
   function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -80,46 +82,58 @@ async function blobToImageFile(blob: Blob, name = "generated.png"): Promise<Imag
   };
 }
 
-	async function editImage() {
-		if (!activeFile?.file || !prompt) {
-			errorMessage = 'Please select an image and enter a prompt';
-			return;
-		}
+async function editImage() {
+  
+  errorMessage = "";
 
-		loading = true
-		errorMessage = '';
+  const cleanPrompt = typeof prompt === "string" ? prompt.trim() : "";
 
-		try {
-			const res = await fetch('/api/image/edit', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					prompt,
-					imageData: { base64Image: activeFile.base64, mimeType: activeFile.mimeType }
-				})
-			});
+  // Validate inputs
+  if (!activeFile?.file || !cleanPrompt) {
+    errorMessage = "Please select an image and enter a prompt.";
+    return;
+  }
 
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				errorMessage = data.error || 'Failed to edit image';
-				return;
-			}
+  loading = true;
 
-			  const blob = await res.blob();
-        const newFile = await blobToImageFile(blob, "generated.png");
+  try {
+    const res = await fetch("/api/image/edit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: cleanPrompt,
+        imageData: {
+          base64Image: activeFile.base64,
+          mimeType: activeFile.mimeType
+        }
+      })
+    });
 
-        generatedImageHistoryFiles = [newFile, ...generatedImageHistoryFiles];
-        activeFile = newFile;
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      errorMessage =
+        data?.error || `Image editing failed`;
+      console.error(errorMessage);
+      return;
+    }
 
-		prompt = "";
+    const blob = await res.blob();
+    const newFile = await blobToImageFile(blob, `edited-${Date.now()}.png`);
 
-		} catch (err) {
-			console.error(err);
-			errorMessage = 'Network or server error';
-		} finally {
-			loading = false;
-		}
-	}
+    const newHistory = [newFile, ...generatedImageHistoryFiles];
+    generatedImageHistoryFiles = newHistory.slice(0, generatedImageHistoryLimit);
+
+    activeFile = newFile;
+
+    prompt = ""; // reset input
+  } catch (err) {
+    console.error("Error editing image:", err);
+    errorMessage = "An unexpected error occurred. Please try again.";
+  } finally {
+    loading = false;
+  }
+}
+
 
 	function downloadImage() {
 		if (!activeImageUrl) return;

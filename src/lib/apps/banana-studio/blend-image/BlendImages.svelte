@@ -24,6 +24,8 @@ let isDraggingOver = $state(false);
 
 let generatedImageHistoryFiles: ImageFile[] = $state([]);
 
+const generatedImageHistoryLimit = 10;
+
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -118,51 +120,64 @@ async function blobToImageFile(blob: Blob, name = "generated.png"): Promise<Imag
 }
 
 async function blendImages() {
-    if (!files.length || !prompt) {
-    errorMessage = "Please select at least one image and enter a prompt";
+ 
+  errorMessage = "";
+
+  const cleanPrompt = typeof prompt === "string" ? prompt.trim() : "";
+
+  // Validate inputs
+  if (!files.length || !cleanPrompt) {
+    errorMessage = "Please select at least one image and enter a prompt.";
     return;
+  }
+
+  loading = true;
+  activeFile = null;
+
+  try {
+    const imagesData = files
+      .filter(f => f.base64 && f.mimeType)
+      .map(f => ({
+        base64Image: f.base64,
+        mimeType: f.mimeType
+      }));
+
+    if (!imagesData.length) {
+      errorMessage = "No valid images found for blending.";
+      return;
     }
 
-    loading = true;
-    activeFile = null;
-    errorMessage = '';
-
-    try {
-    const imagesData = files
-        .filter(f => f.base64 && f.mimeType)
-        .map(f => ({
-        base64Image: f.base64!,
-        mimeType: f.mimeType!,
-        }));
-
-    const res = await fetch('/api/image/blend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, imagesData })
+    const res = await fetch("/api/image/blend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: cleanPrompt, imagesData })
     });
 
     if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        errorMessage = data.error || 'Failed to blend images';
-        return;
+      const data = await res.json().catch(() => null);
+      errorMessage =
+        data?.error || `Image blending failed (${res.status} ${res.statusText})`;
+      console.error(errorMessage);
+      return;
     }
 
-    // Binary image response
     const blob = await res.blob();
-    const newFile = await blobToImageFile(blob, "generated.png");
+    const newFile = await blobToImageFile(blob, `blended-${Date.now()}.png`);
 
-    generatedImageHistoryFiles = [newFile, ...generatedImageHistoryFiles];
+    const newHistory = [newFile, ...generatedImageHistoryFiles];
+    generatedImageHistoryFiles = newHistory.slice(0, generatedImageHistoryLimit);
+
     activeFile = newFile;
 
     prompt = "";
-
-    } catch (err) {
-    console.error(err);
-    errorMessage = 'Network or server error';
-    } finally {
+  } catch (err) {
+    console.error("Error blending images:", err);
+    errorMessage = "An unexpected error occurred. Please try again.";
+  } finally {
     loading = false;
-    }
+  }
 }
+
 
 function handlePromptKeydown(e: KeyboardEvent) {
   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
