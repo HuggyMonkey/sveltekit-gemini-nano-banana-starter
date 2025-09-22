@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ImageEditorSvg } from "$lib/icons/svg";
+
 	type ImageFile = {
 		file: File | null;
 		name?: string;
@@ -109,6 +111,8 @@ async function blobToImageFile(blob: Blob, name = "generated.png"): Promise<Imag
         generatedImageHistoryFiles = [newFile, ...generatedImageHistoryFiles];
         activeFile = newFile;
 
+		prompt = "";
+
 		} catch (err) {
 			console.error(err);
 			errorMessage = 'Network or server error';
@@ -129,13 +133,15 @@ async function blobToImageFile(blob: Blob, name = "generated.png"): Promise<Imag
 </script>
 
 <div class="p-4 sm:p-6 md:p-8 lg:p-12 space-y-8">
-	<header class="text-center">
-		<h1 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
-			<span class="mr-2">✂️</span>
-			Image Editor
+	<header class="space-y-2 flex flex-col items-center">
+		<h1 class="flex items-center gap-2 text-2xl md:text-3xl font-bold text-gray-900">
+		  <span class="inline-block align-middle">
+			{@html ImageEditorSvg}
+		  </span>
+		  Image Editor
 		</h1>
-		<p class="mt-2 text-lg text-gray-600">Edit your images with natural language prompts.</p>
-	</header>
+		<p class="text-gray-600">Upload an image, describe the edit, and generate.</p>
+	  </header>
 
 	<div class="max-w-xl mx-auto">
 		<label
@@ -221,23 +227,12 @@ async function blobToImageFile(blob: Blob, name = "generated.png"): Promise<Imag
 	</div>
 
 	{#if errorMessage}
-		<div
-			class="max-w-2xl mx-auto flex items-center text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg"
-		>
-			<svg
-				class="w-5 h-5 mr-3 text-red-600"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					fill-rule="evenodd"
-					d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-					clip-rule="evenodd"
-				></path></svg
-			>
-			<span class="font-medium">{errorMessage}</span>
-		</div>
+	<div class="flex items-center text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg">
+        <svg class="w-5 h-5 mr-3 text-red-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v6h-2V7h2zm0 8v2h-2v-2h2z"/></svg>
+        <span class="font-medium">{errorMessage}</span>
+      </div>
 	{/if}
+	
 
 	{#if activeImageUrl}
 		<div class="mt-12 text-center animate-fade-in-scale">

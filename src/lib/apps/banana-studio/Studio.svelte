@@ -4,9 +4,8 @@
     import ImageEditor from "$lib/apps/banana-studio/image-editor/ImageEditor.svelte";
     import Landing from "$lib/apps/banana-studio/landing/Landing.svelte";
 
-    import { ImageGeneratorSvg } from "$lib/icons/svg";
-    import { ImageEditorSvg } from "$lib/icons/svg";
-    import { BlendImagesSvg } from "$lib/icons/svg";
+    import { ImageGeneratorSvg, ImageEditorSvg, BlendImagesSvg } from "$lib/icons/svg";
+
 
     
   let sidebarCollapsed = $state(false);

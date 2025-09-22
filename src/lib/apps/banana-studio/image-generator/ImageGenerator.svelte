@@ -1,59 +1,78 @@
 <script lang="ts">
-
+  import { ImageGeneratorSvg } from "$lib/icons/svg";
 
   let prompt = $state("");
   let imageHistory: string[] = $state([]);
   let activeImageUrl = $state("");
 
   let loading = $state(false);
-  let error: string | null = $state(null);
+  let errorMessage: string  = $state("");
 
-  async function generateImage() {
-    if (!prompt) {
-      error = "Please enter a prompt";
+  const generatdHistoryLimit = 10;
+
+
+async function generateImage() {
+ 
+  errorMessage = "";
+
+  // Validate prompt
+  if (typeof prompt !== "string" || prompt.trim() === "") {
+    errorMessage = "Please enter a prompt.";
+    return;
+  }
+
+  loading = true;
+
+  try {
+    const response = await fetch("/api/image/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt.trim() })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      errorMessage = errorData?.message || `Image generation failed: ${response.statusText}`;
+      console.error(errorMessage);
       return;
     }
 
-    loading = true;
-    error = null;
+    const blob = await response.blob();
+    const newUrl = URL.createObjectURL(blob);
 
-    try {
-      const res = await fetch("/api/image/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
+    const newHistory = [newUrl, ...imageHistory];
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        error = err.error || "Failed to generate image";
-      } else {
-        const blob = await res.blob();
-        const newUrl = URL.createObjectURL(blob);
+    imageHistory = newHistory.slice(0, generatdHistoryLimit);
 
-        imageHistory = [newUrl, ...imageHistory];
-        activeImageUrl = newUrl;
-      }
-    } catch (e) {
-      error = "Network error";
-      console.error(e);
-    } finally {
-      loading = false;
-    }
+    activeImageUrl = newUrl;
+
+    prompt = ""; 
+  } catch (err) {
+    errorMessage = "An unexpected error occurred. Please try again.";
+    console.error("Error generating image:", err);
+  } finally {
+    loading = false;
   }
+}
 
-  function handlePromptKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-      generateImage();
-    }
+function handlePromptKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    generateImage();
   }
+}
 </script>
 
 <main class="min-h-screen bg-gray-50 p-6 md:p-8 lg:p-12 xl:px-16">
   <div class="mx-auto max-w-4xl space-y-8 md:space-y-12">
-    <h1 class="text-center text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
-      Image Generator
-    </h1>
+    <header class="space-y-2 flex flex-col items-center">
+      <h1 class="flex items-center gap-2 text-2xl md:text-3xl font-bold text-gray-900">
+        <span class="inline-block align-middle">
+        {@html ImageGeneratorSvg}
+        </span>
+        Image Generator
+      </h1>
+      <p class="text-gray-600">Describe the image you want to generate, and generate.</p>
+      </header>
 
     <section class="space-y-4">
       <textarea
@@ -78,24 +97,11 @@
       </button>
     </section>
 
-    {#if error}
-      <div
-        class="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="h-5 w-5"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.293-9.293a1 1 0 011.414 0L10 8.586l1.293-1.293a1 1 0 111.414 1.414L11.414 10l1.293 1.293a1 1 0 01-1.414 1.414L10 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L8.586 10 7.293 8.707a1 1 0 010-1.414z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <span class="font-medium">{error}</span>
-      </div>
+    {#if errorMessage}
+    <div class="flex items-center text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg">
+      <svg class="w-5 h-5 mr-3 text-red-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v6h-2V7h2zm0 8v2h-2v-2h2z"/></svg>
+      <span class="font-medium">{errorMessage}</span>
+    </div>
     {/if}
 
     <section class="space-y-8">
@@ -139,7 +145,7 @@
 
     {#if imageHistory.length > 0}
       <section class="space-y-6">
-        <h2 class="text-2xl font-semibold text-gray-800">History</h2>
+        <h2 class="text-2xl font-semibold text-gray-800">Generated History</h2>
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
           {#each imageHistory as imageUrl, i}
           <button

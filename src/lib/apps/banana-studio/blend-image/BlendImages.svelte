@@ -1,5 +1,7 @@
 
 <script lang="ts">
+import { BlendImagesSvg } from "$lib/icons/svg";
+
 type ImageFile = {
     file: File | null;
     name?: string;
@@ -152,6 +154,8 @@ async function blendImages() {
     generatedImageHistoryFiles = [newFile, ...generatedImageHistoryFiles];
     activeFile = newFile;
 
+    prompt = "";
+
     } catch (err) {
     console.error(err);
     errorMessage = 'Network or server error';
@@ -184,8 +188,13 @@ function downloadImage() {
 
 <div class="px-6 md:px-8 lg:px-12 xl:px-16">
   <div class="py-8 md:py-12 lg:py-16 space-y-8 md:space-y-12">
-    <header class="space-y-2">
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Image Blender</h1>
+    <header class="space-y-2 flex flex-col items-center">
+      <h1 class="flex items-center gap-2 text-2xl md:text-3xl font-bold text-gray-900">
+        <span class="inline-block align-middle">
+          {@html BlendImagesSvg}
+        </span>
+        Image Blender
+      </h1>
       <p class="text-gray-600">Upload multiple images, describe the blend, and generate.</p>
     </header>
 
@@ -277,6 +286,7 @@ function downloadImage() {
           <span class="font-medium">{errorMessage}</span>
         </div>
       {/if}
+   
     </section>
 
     <!-- 2.4 Preview / Output Area -->
