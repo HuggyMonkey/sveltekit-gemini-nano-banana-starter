@@ -115,7 +115,7 @@ Common features:
 
 ---
 
-### You can further improve this starter repository by implementing the following ides:
+# You can further improve this starter repository by implementing the following ideas:
 
 ## Presets (Popular Image Tasks)
 
