@@ -1,36 +1,30 @@
 <script>
-    import BlendImages from "$lib/apps/banana-studio/blend-image/BlendImages.svelte";
-    import ImageGenerator from "$lib/apps/banana-studio/image-generator/ImageGenerator.svelte";
-    import ImageEditor from "$lib/apps/banana-studio/image-editor/ImageEditor.svelte";
+    import BlendImages from "$lib/apps/banana-studio/main/blend-image/BlendImages.svelte";
+    import ImageGenerator from "$lib/apps/banana-studio/main/image-generator/ImageGenerator.svelte";
+    import ImageEditor from "$lib/apps/banana-studio/main/image-editor/ImageEditor.svelte";
+    import BackgroundRemover from "$lib/apps/banana-studio/presets/BackgroundRemover.svelte";
     import Landing from "$lib/apps/banana-studio/landing/Landing.svelte";
 
     import { ImageGeneratorSvg, ImageEditorSvg, BlendImagesSvg } from "$lib/icons/svg";
 
-
     
   let sidebarCollapsed = $state(false);
   let profileMenuOpen = $state(false);
+  let presetsMenuOpen = $state(false);
 
   let apps = $state([
-    { id: "generator", name: "Generator", component: ImageGenerator, icon: ImageGeneratorSvg },
-    { id: "editor", name: "Editor", component: ImageEditor, icon: ImageEditorSvg },
-    { id: "blender", name: "Blender", component: BlendImages, icon: BlendImagesSvg },
+    { id: "generator", name: "Generator", component: ImageGenerator, icon: ImageGeneratorSvg, type: "main" },
+    { id: "editor", name: "Editor", component: ImageEditor, icon: ImageEditorSvg, type: "main" },
+    { id: "blender", name: "Blender", component: BlendImages, icon: BlendImagesSvg, type: "main" },
+    { id: "background-remover", name: "Background Remover", component: BackgroundRemover, icon: null, type: "preset" },
   ]);
 
+  let mainApps = $state(apps.filter(app => app.type === "main"));
+  let presetApps = $state(apps.filter(app => app.type === "preset"));
+ 
   let currentID = $state("landing");
   let currentApp = $derived(apps.find(app => app.id === currentID));
 
-
-
-  function toggleSidebar() {
-    sidebarCollapsed = !sidebarCollapsed;
-  }
-
-  function toggleProfileMenu() {
-    profileMenuOpen = !profileMenuOpen;
-  }
-
-  
 </script>
 
 <div class="studio bg-gray-50 min-h-screen">
@@ -39,7 +33,8 @@
     <div class="flex items-center justify-between px-4 py-3">
       <!-- Left side: Menu toggle + App title -->
       <div class="flex items-center space-x-4">
-        <button class=" p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer" aria-label="Toggle menu" onclick={toggleSidebar}>
+        <button class=" p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer" aria-label="Toggle menu" 
+        onclick={() => sidebarCollapsed = !sidebarCollapsed}>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
@@ -76,11 +71,12 @@
     <aside class="studio__sidebar bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out {sidebarCollapsed ? 'w-20' : 'w-64'} hidden md:block" aria-label="Sub app navigation">
       <!-- Sub App Navigation -->
       <nav class=" p-4" aria-label="Sub apps">
+        <!-- Main Sub App Navigation -->
         <ul class="space-y-4">
-            {#each apps as app}
+            {#each mainApps as app}
             {@const id = app.id}
           <li>
-            <button type="button" class="{currentID === id ? 'sidebar__link is-active' : 'sidebar__link'} w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
+            <button type="button" class="{currentID === id ? 'bg-blue-50 text-green-600' : 'text-gray-700'} w-full text-left px-3 py-2  hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
             onclick={() => currentID = app.id}>
               <span class=" mr-2 inline-flex items-center justify-center">
                 {@html app.icon}
@@ -90,11 +86,40 @@
           </li>
           {/each}
         </ul>
+
+        <!-- Presets Navigation -->
+        <div class="">
+          <button type="button" class=" border-t border-gray-200 mt-4 border-b flex items-center w-full hover:bg-gray-50   transition-all duration-200 cursor-pointer" 
+          onclick={() => presetsMenuOpen = !presetsMenuOpen}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="2.0em" height="2.0em" viewBox="0 0 24 24">
+              <path fill="currentColor" d="m7 10l5 5l5-5z" />
+            </svg>
+            <span class=" font-bold text-purple-600 {sidebarCollapsed ? 'hidden' : ''}">Presets</span>
+          </button>        
+           <ul class="mt-2" class:block={presetsMenuOpen} class:hidden={!presetsMenuOpen}>
+            {#each presetApps as app}
+              {@const id = app.id}
+            <li>
+              <button type="button" class="{currentID === id ? 'bg-blue-50 text-green-600' : 'text-gray-700'} w-full text-left px-3 py-2  hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
+              onclick={() => currentID = app.id}>
+                <span class=" mr-2 inline-flex items-center justify-center">
+                  {#if app.icon}
+                    {@html app.icon}
+                  {/if}
+                </span>
+                <span class=" {sidebarCollapsed ? 'hidden' : ''}">{app.name}</span>
+              </button>
+            </li>
+            {/each}
+          </ul>
+        </div>
+        
       </nav>
 
       <!-- Profile Section -->
       <section class=" border-t border-gray-200 p-4" aria-label="Profile">
-        <button type="button" class="profile__summary flex items-center w-full hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 cursor-pointer" onclick={toggleProfileMenu}>
+        <button type="button" class="flex items-center w-full hover:bg-gray-50 rounded-lg p-2 transition-all duration-200 cursor-pointer" 
+        onclick={() => profileMenuOpen = !profileMenuOpen}>
           <svg xmlns="http://www.w3.org/2000/svg" width="2.0em" height="2.0em" viewBox="0 0 24 24">
             <path fill="currentColor" d="m7 10l5 5l5-5z" />
           </svg>

@@ -15,7 +15,7 @@ export const ImageEditorSvg = `
 
 export const BlendImagesSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 48 48">
-	<g fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+	<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
 		<rect width="20" height="22" x="4" y="24" rx="2" transform="rotate(-45 4 24)" />
 		<rect width="20" height="20" x="16" y="24" rx="2" transform="rotate(-45 16 24)" />
 	</g>
