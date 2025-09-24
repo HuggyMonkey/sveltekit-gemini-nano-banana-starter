@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { templateContent } from "./templateContent";
 
 	type ImageFile = {
 		file: File | null;
@@ -8,7 +9,12 @@
 		base64?: string;
 	};
 
-	const presetId = "background_removal";
+	let prompt = $state('');
+
+	let { presetId }: { presetId: string } = $props();
+
+	let preset = $derived(templateContent.find(p => p.id === presetId));
+
 
 	let files = $state<ImageFile []>([]);
   let activeFile = $state<ImageFile | null>(null);
@@ -101,7 +107,7 @@ async function editImage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
 		presetId,
-        prompt: "",
+        prompt: prompt,
         imageData: {
           base64Image: activeFile.base64,
           mimeType: activeFile.mimeType
@@ -124,6 +130,8 @@ async function editImage() {
     generatedImageHistoryFiles = newHistory.slice(0, generatedImageHistoryLimit);
 
     activeFile = newFile;
+
+	prompt = "";
 
   } catch (err) {
     console.error("Error editing image:", err);
@@ -149,9 +157,9 @@ async function editImage() {
 	<header class="space-y-2 flex flex-col items-center">
 		<h1 class="flex items-center gap-2 text-2xl md:text-3xl font-bold text-gray-900">
 		
-		  Background Remover
+		  {preset?.name || "Image Editor"}
 		</h1>
-		<p class="text-gray-600">Upload an image to remove the background.</p>
+		<p class="text-gray-600">{preset?.description || "Upload an image to edit."}</p>
 	  </header>
 
 	<div class="max-w-xl mx-auto">
@@ -188,6 +196,20 @@ async function editImage() {
 	</div>
 
 	<div class="max-w-2xl mx-auto space-y-6">
+		{#if preset?.userInputRequired}
+			<div class="bg-purple-50 p-4 rounded-lg">
+				<label for="prompt-input" class="text-lg font-mono font-semibold text-purple-800 mb-2 block">
+					Your Prompt
+				</label>
+				<textarea
+					id="prompt-input"
+					placeholder={preset?.userInputPlaceholder || "Enter a prompt..."}
+					bind:value={prompt}
+					class="w-full p-4 border-2 border-gray-300 rounded-xl resize-none font-mono text-base md:text-lg text-gray-700 leading-relaxed tracking-wide bg-white transition-all duration-200 ease-in-out focus:border-purple-500 focus:ring-4 focus:ring-purple-300 focus:ring-opacity-30 selection:bg-purple-200 selection:text-purple-900"
+					rows="3"
+				></textarea>
+			</div>
+		{/if}
 
 		<button
 			class="w-full flex items-center justify-center bg-purple-600 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-purple-700 hover:enabled:shadow-xl hover:enabled:scale-105 active:enabled:scale-95 focus:ring-4 focus:ring-purple-300 focus:ring-opacity-50"
@@ -216,7 +238,7 @@ async function editImage() {
 					</path>
 				</g>
 			</svg>
-			<span class="ml-2">Remove Background</span>
+			<span class="ml-2">{preset?.actionButtonText || "Apply Edit"}</span>
 			
 			{/if}
 		</button>
@@ -226,7 +248,7 @@ async function editImage() {
 	<div class="flex items-center text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg">
         <svg class="w-5 h-5 mr-3 text-red-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v6h-2V7h2zm0 8v2h-2v-2h2z"/></svg>
         <span class="font-medium">{errorMessage}</span>
-      </div>
+    </div>
 	{/if}
 	
 

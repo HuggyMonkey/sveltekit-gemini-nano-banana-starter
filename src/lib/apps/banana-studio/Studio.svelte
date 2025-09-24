@@ -2,7 +2,10 @@
     import BlendImages from "$lib/apps/banana-studio/main/blend-image/BlendImages.svelte";
     import ImageGenerator from "$lib/apps/banana-studio/main/image-generator/ImageGenerator.svelte";
     import ImageEditor from "$lib/apps/banana-studio/main/image-editor/ImageEditor.svelte";
-    import BackgroundRemover from "$lib/apps/banana-studio/presets/BackgroundRemover.svelte";
+
+    import PresetTemplateV1 from "$lib/apps/banana-studio/presets/component-template/PresetTemplateV1.svelte";
+    import PresetTemplateV2 from "$lib/apps/banana-studio/presets/component-template/PresetTemplateV2.svelte";
+
     import Landing from "$lib/apps/banana-studio/landing/Landing.svelte";
 
     import { ImageGeneratorSvg, ImageEditorSvg, BlendImagesSvg } from "$lib/icons/svg";
@@ -10,20 +13,74 @@
     
   let sidebarCollapsed = $state(false);
   let profileMenuOpen = $state(false);
-  let presetsMenuOpen = $state(false);
+  let editPresetsMenuOpen = $state(false);
+  let blendPresetsMenuOpen = $state(false);
 
-  let apps = $state([
+  let mainApps = $state([
     { id: "generator", name: "Generator", component: ImageGenerator, icon: ImageGeneratorSvg, type: "main" },
     { id: "editor", name: "Editor", component: ImageEditor, icon: ImageEditorSvg, type: "main" },
     { id: "blender", name: "Blender", component: BlendImages, icon: BlendImagesSvg, type: "main" },
-    { id: "background-remover", name: "Background Remover", component: BackgroundRemover, icon: null, type: "preset" },
   ]);
 
-  let mainApps = $state(apps.filter(app => app.type === "main"));
-  let presetApps = $state(apps.filter(app => app.type === "preset"));
- 
+  let editPresetApps =$state([
+    { id: "background-removal", name: "Background Removal", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "background-replacement", name: "Background Replacement", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "object-removal", name: "Object Removal", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "object-addition", name: "Object Addition", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "face-retouching", name: "Face Retouching", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "sky-replacement", name: "Sky Replacement", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "style-transfer", name: "Style Transfer", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "film-styles", name: "Film & Photography Styles", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "cartoon-avatar", name: "Cartoon / Avatar Creation", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "double-exposure", name: "AI Double Exposure", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "season-change", name: "Season Change", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "makeup-styling", name: "Makeup & Styling", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "product-photography", name: "Product Photography", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "virtual-staging", name: "Virtual Staging", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "ad-mockup", name: "Ad Mockup", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "logo-overlay", name: "Logo Overlay / Branding", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "ecommerce-optimization", name: "E-commerce Optimization", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "id-photo", name: "ID Photo Preset", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "group-photo-fix", name: "Group Photo Fix", component: PresetTemplateV1, icon: null, type: "preset"},
+    { id: "pose-correction", name: "Pose Correction / Head Swap", component: PresetTemplateV1, icon: null, type: "preset"},
+  ])
+
+  let blendPresetApps = $state([
+    { id: "face-swap", name: "Face Swap", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "style-transfer-ref", name: "Style Transfer (Reference)", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "scene-composition", name: "Scene Composition", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "product-in-context", name: "Product in Context", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "color-grading-ref", name: "Color Grading by Reference", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "before-after-presentation", name: "Before & After Presentation", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "image-merge-collage", name: "Image Merge / Collage Maker", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "double-exposure", name: "Double Exposure", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "face-morphing", name: "Face Morphing", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "outfit-transfer", name: "Outfit Transfer", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "makeup-transfer", name: "Makeup Transfer", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "hair-transfer", name: "Hair Transfer", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "pose-transfer", name: "Pose Transfer", component: PresetTemplateV2, icon: null, type: "preset"},
+  
+    { id: "virtual-background-matching", name: "Virtual Background Matching", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "reference-guided-retouching", name: "Reference-Guided Retouching", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "ad-mockup", name: "Ad Mockup", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "photo-restoration-ref", name: "Photo Restoration with Reference", component: PresetTemplateV2, icon: null, type: "preset"},
+  
+
+    { id: "panorama-stitching", name: "Panorama Stitching", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "hdr-merge", name: "HDR Merge", component: PresetTemplateV2, icon: null, type: "preset"},
+    { id: "duplicate-removal-ref", name: "Duplicate Removal with Reference", component: PresetTemplateV2, icon: null, type: "preset"}
+  ]);
+
   let currentID = $state("landing");
-  let currentApp = $derived(apps.find(app => app.id === currentID));
+
+  let currentMainApp = $derived(mainApps.find(app => app.id === currentID));
+  let currentEditPresetApp = $derived(editPresetApps.find(app => app.id === currentID));
+  let currentBlendPresetApp = $derived(blendPresetApps.find(app => app.id === currentID));
+
+
+
+
+  
 
 </script>
 
@@ -90,14 +147,14 @@
         <!-- Presets Navigation -->
         <div class="">
           <button type="button" class=" border-t border-gray-200 mt-4 border-b flex items-center w-full hover:bg-gray-50   transition-all duration-200 cursor-pointer" 
-          onclick={() => presetsMenuOpen = !presetsMenuOpen}>
+          onclick={() => editPresetsMenuOpen = !editPresetsMenuOpen}>
             <svg xmlns="http://www.w3.org/2000/svg" width="2.0em" height="2.0em" viewBox="0 0 24 24">
               <path fill="currentColor" d="m7 10l5 5l5-5z" />
             </svg>
             <span class=" font-bold text-purple-600 {sidebarCollapsed ? 'hidden' : ''}">Presets</span>
           </button>        
-           <ul class="mt-2" class:block={presetsMenuOpen} class:hidden={!presetsMenuOpen}>
-            {#each presetApps as app}
+           <ul class="mt-2" class:block={editPresetsMenuOpen} class:hidden={!editPresetsMenuOpen}>
+            {#each editPresetApps as app}
               {@const id = app.id}
             <li>
               <button type="button" class="{currentID === id ? 'bg-blue-50 text-green-600' : 'text-gray-700'} w-full text-left px-3 py-2  hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
@@ -106,6 +163,33 @@
                   {#if app.icon}
                     {@html app.icon}
                   {/if}
+                </span>
+                <span class=" {sidebarCollapsed ? 'hidden' : ''}">{app.name}</span>
+              </button>
+            </li>
+            {/each}
+          </ul>
+        </div>
+
+        <!-- Blend Presets Navigation -->
+        <div class="">
+          <button type="button" class=" border-t border-gray-200 mt-4 border-b flex items-center w-full hover:bg-gray-50   transition-all duration-200 cursor-pointer" 
+          onclick={() => blendPresetsMenuOpen = !blendPresetsMenuOpen}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="2.0em" height="2.0em" viewBox="0 0 24 24">
+              <path fill="currentColor" d="m7 10l5 5l5-5z" />
+            </svg>
+            <span class=" font-bold text-blue-600 {sidebarCollapsed ? 'hidden' : ''}">Blend Presets</span>
+          </button>        
+          <ul class="mt-2" class:block={blendPresetsMenuOpen} class:hidden={!blendPresetsMenuOpen}>
+            {#each blendPresetApps as app}
+              {@const id = app.id}
+            <li>
+              <button type="button" class="{currentID === id ? 'bg-blue-50 text-green-600' : 'text-gray-700'} w-full text-left px-3 py-2  hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 cursor-pointer"
+              onclick={() => currentID = app.id}>
+                <span class=" mr-2 inline-flex items-center justify-center">
+                  {#if app.icon}
+                  {@html app.icon}
+                {/if}
                 </span>
                 <span class=" {sidebarCollapsed ? 'hidden' : ''}">{app.name}</span>
               </button>
@@ -170,9 +254,15 @@
             {#if currentID === "landing"}
                 <Landing />
             {:else}
-                {#if currentApp}
-                    <currentApp.component />
-                {/if}
+              {#if currentMainApp}
+                <currentMainApp.component/>
+              {/if}
+              {#if currentEditPresetApp}
+                <currentEditPresetApp.component presetId={currentEditPresetApp.id}/>
+              {/if}
+              {#if currentBlendPresetApp}
+                <currentBlendPresetApp.component presetId={currentBlendPresetApp.id}/>
+              {/if}
             {/if}
         </div>
       </div>

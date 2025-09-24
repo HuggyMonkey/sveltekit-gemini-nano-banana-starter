@@ -3,7 +3,12 @@ import { GoogleGenAI } from "@google/genai";
 
 import { GOOGLE_API_KEY } from "$env/static/private";
 
-import { buildPrompt, presetPromptLibrary } from "../prompts";
+import { buildPrompt, presetBlendPromptLibrary } from "../prompts";
+
+type ImageData = {
+  mimeType: string;
+  base64Image: string;
+};
 
 // Initialize Gemini SDK with your API key
 const ai = new GoogleGenAI({
@@ -13,28 +18,29 @@ const ai = new GoogleGenAI({
 
 export async function POST({ request }) {
   try {
-    // Expect JSON body { prompt, presetID, imageData: { base64Image, mimeType } }
-    const { prompt, presetId, imageData: { base64Image, mimeType } } = await request.json();
+    
+    const { prompt, presetId, imagesData }: { prompt: string, presetId: string, imagesData: ImageData[] } = await request.json();
 
     console.log("Prompt:", prompt);
-    console.log("PresetID:", presetId);
-    console.log("MimeType:", mimeType);
+    console.log("ImagesData:", imagesData);
 
-    if (!presetId || !base64Image || !mimeType) {
-      return json({ error: "Missing 'presetId' or 'imageData' or 'mimeType'" }, { status: 400 });
+    if (!presetId || !imagesData) {
+      return json({ error: "Missing 'presetId' or 'prompt' or 'imagesData'" }, { status: 400 });
     }
 
-    const promptObject = buildPrompt(presetId, prompt, presetPromptLibrary);
+    const promptObject = buildPrompt(presetId, prompt, presetBlendPromptLibrary);
+
+    const imagesInlineData = imagesData.map((image: ImageData) => ({
+        inlineData: {
+            mimeType: image.mimeType,
+            data: image.base64Image,
+        },
+    }));
 
     // Build Gemini request
     const contents = [
-      { text: promptObject.prompt_string },
-      {
-        inlineData: {
-          mimeType: mimeType || "image/png",
-          data: base64Image // base64 string
-        }
-      }
+        { text: promptObject.prompt_string },
+        ...imagesInlineData
     ];
 
     const response = await ai.models.generateContent({
