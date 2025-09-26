@@ -197,7 +197,7 @@ async function editImage() {
 			</label>
 			<textarea
 				id="prompt-input"
-				placeholder="A magical forest with glowing mushrooms..."
+				placeholder="Write a prompt to edit the image (add, remove, change, etc.)"
 				bind:value={prompt}
 				class="w-full p-4 border-2 border-gray-300 rounded-xl resize-none font-mono text-base md:text-lg text-gray-700 leading-relaxed tracking-wide bg-white transition-all duration-200 ease-in-out focus:border-purple-500 focus:ring-4 focus:ring-purple-300 focus:ring-opacity-30 selection:bg-purple-200 selection:text-purple-900"
 				rows="3"

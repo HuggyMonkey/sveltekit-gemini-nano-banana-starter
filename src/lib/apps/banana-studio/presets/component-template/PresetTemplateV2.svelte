@@ -277,7 +277,7 @@
               </svg>
             </div>
             <div class="text-gray-700">
-              <p class="font-medium">Upload Image 1</p>
+              <p class="font-medium">Upload Primary Image</p>
               <p class="text-sm text-gray-500">Drag & drop or browse</p>
             </div>
             <div>
@@ -332,7 +332,7 @@
                 </svg>
               </div>
               <div class="text-gray-700">
-                <p class="font-medium">Upload Image 2</p>
+                <p class="font-medium">Upload Reference Image</p>
                 <p class="text-sm text-gray-500">Drag & drop or browse</p>
               </div>
               <div>
